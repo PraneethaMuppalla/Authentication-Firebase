@@ -1,11 +1,13 @@
 import React, { useRef, useContext } from "react";
 
+import { useHistory } from "react-router-dom";
 import AuthContext from "../../context/auth-context";
 import classes from "./ProfileForm.module.css";
 
 const ProfileForm = () => {
   const newPasswordInputRef = useRef();
   const authCtx = useContext(AuthContext);
+  const history = useHistory();
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -17,7 +19,7 @@ const ProfileForm = () => {
         body: JSON.stringify({
           password: newPassword,
           idToken: authCtx.token,
-          returnSecureToken: false,
+          returnSecureToken: true,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -29,7 +31,7 @@ const ProfileForm = () => {
           return res.json();
         } else {
           return res.json().then((data) => {
-            let errorMessage = "Authentication failed!";
+            let errorMessage = "Change Password failed!";
             // if (data && data.error && data.error.message) {
             //   errorMessage = data.error.message;
             // }
@@ -40,6 +42,8 @@ const ProfileForm = () => {
       })
       .then((data) => {
         console.log(data);
+        authCtx.login(data.idToken);
+        history.replace("/");
       })
       .catch((err) => {
         alert(err.message);
